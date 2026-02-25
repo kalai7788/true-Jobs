@@ -1,73 +1,150 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AuthLayout from "../components/auth/AuthLayout";
+import InputField from "../components/auth/InputField";
+import useAuth from "../hooks/useAuth";
+
+// Country codes list
+const COUNTRY_CODES = [
+  { code: "+91", flag: "🇮🇳", name: "India" },
+  { code: "+1",  flag: "🇺🇸", name: "USA" },
+  { code: "+44", flag: "🇬🇧", name: "UK" },
+  { code: "+61", flag: "🇦🇺", name: "Australia" },
+  { code: "+971", flag: "🇦🇪", name: "UAE" },
+  { code: "+65", flag: "🇸🇬", name: "Singapore" },
+];
 
 function LoginPage() {
-    return (
-        <div className="min-h-screen flex">
+  const navigate = useNavigate();
+  const { phone, setPhone, sendOtp, loading, error, setError } = useAuth();
+  const [countryCode, setCountryCode] = useState("+91");
+  const [localError, setLocalError] = useState("");
 
-            {/* LEFT SIDE */}
-            <div className="w-1/2 bg-gray-50 flex flex-col justify-center px-20">
+  const handleContinue = async () => {
+    // Basic validation
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 7 || digits.length > 15) {
+      setLocalError("Please enter a valid phone number.");
+      return;
+    }
+    setLocalError("");
 
-                <div className="mb-10">
-                    <h1 className="text-6xl font-bold">
-                        <span className="text-purple-700">True</span>{" "}
-                        <span className="text-green-600">Jobs</span>
-                    </h1>
-                </div>
+    const ok = await sendOtp();
+    if (ok) {
+      // Pass phone via sessionStorage so OtpPage can read it
+      sessionStorage.setItem("tj_phone", countryCode + phone);
+      navigate("/verify-otp");
+    }
+  };
 
-                <p className="text-gray-600 text-lg mb-4">
-                    Explore Opportunities with a Trusted Network.
-                </p>
+  const handleInput = (e) => {
+    setPhone(e.target.value);
+    if (localError) setLocalError("");
+    if (error) setError("");
+  };
 
-                <p className="text-gray-600 text-lg mb-8">
-                    Find Jobs Across Industries – All In One Place.
-                </p>
+  return (
+    <AuthLayout>
+      {/* Heading */}
+      <h2 className="text-2xl font-bold text-white text-center mb-1">
+        Welcome Back!
+      </h2>
+      <p className="text-purple-200 text-sm text-center mb-7">
+        OTP will be sent to your mobile number
+      </p>
 
-                <div className="border-t-2 border-purple-500 w-40 mb-4"></div>
+      {/* Phone field */}
+      <div className="mb-5">
+        <label className="text-sm font-medium text-purple-100 block mb-1.5">
+          Mobile Number
+        </label>
 
-                <p className="text-purple-700 font-medium text-lg pb-4">
-                    True Jobs. True Growth. Every Dream, Within Reach.
-                </p>
-                <div className="border-t-2 border-purple-500 w-40" ></div>
-            </div>
+        <div className="flex gap-2">
+          {/* Country selector */}
+          <select
+            value={countryCode}
+            onChange={(e) => setCountryCode(e.target.value)}
+            className="bg-white/15 border border-white/30 rounded-lg px-2 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
+          >
+            {COUNTRY_CODES.map((c) => (
+              <option
+                key={c.code}
+                value={c.code}
+                className="bg-purple-800 text-white"
+              >
+                {c.flag} {c.code}
+              </option>
+            ))}
+          </select>
 
-            {/* RIGHT SIDE */}
-            <div className="w-1/2 bg-gradient-to-b from-purple-700 to-purple-900 flex flex-col justify-center items-center text-white">
-
-                <div className="w-96">
-
-                    <h2 className="text-2xl font-semibold mb-6 text-center">
-                        Login/Register
-                    </h2>
-
-                    <p className="text-sm mb-6 text-center text-purple-200">
-                        OTP (One Time Password) will be sent to this number
-                    </p>
-
-                    <div className="flex gap-2 mb-4">
-                        <select className="bg-purple-600 border border-purple-400 px-3 py-2 rounded-md text-white">
-                            <option>+91</option>
-                        </select>
-
-                        <input
-                            type="text"
-                            placeholder="Enter your number"
-                            className="flex-1 px-4 py-2 rounded-md text-black focus:outline-none"
-                        />
-                    </div>
-
-                    <button className="w-full bg-white text-purple-700 py-2 rounded-md font-medium hover:bg-gray-200 transition">
-                        Continue
-                    </button>
-
-                    <p className="text-xs mt-6 text-center text-purple-300">
-                        By clicking Continue, you agree to True Jobs Terms & Conditions and Privacy Policy.
-                    </p>
-
-                </div>
-            </div>
-
+          {/* Phone input */}
+          <input
+            id="phone"
+            type="tel"
+            placeholder="Enter your mobile number"
+            value={phone}
+            onChange={handleInput}
+            onKeyDown={(e) => e.key === "Enter" && handleContinue()}
+            maxLength={15}
+            className={[
+              "flex-1 rounded-lg px-4 py-2.5 text-sm",
+              "bg-white/15 border placeholder-purple-300 text-white",
+              "focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent",
+              "transition duration-200",
+              localError || error ? "border-red-400" : "border-white/30",
+            ].join(" ")}
+          />
         </div>
-    );
+
+        {/* Errors */}
+        {(localError || error) && (
+          <p className="text-red-400 text-xs mt-1.5">{localError || error}</p>
+        )}
+      </div>
+
+      {/* CTA Button */}
+      <button
+        onClick={handleContinue}
+        disabled={loading}
+        className={[
+          "w-full py-3 rounded-lg font-semibold text-sm tracking-wide transition duration-200",
+          loading
+            ? "bg-white/40 text-white cursor-not-allowed"
+            : "bg-white text-purple-700 hover:bg-purple-50 active:scale-[0.98] shadow-md",
+        ].join(" ")}
+      >
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Sending OTP…
+          </span>
+        ) : (
+          "Get OTP"
+        )}
+      </button>
+
+      {/* Divider */}
+      <div className="flex items-center my-6 gap-3">
+        <hr className="flex-1 border-white/20" />
+        <span className="text-purple-300 text-xs">OR</span>
+        <hr className="flex-1 border-white/20" />
+      </div>
+
+      {/* Social login hint */}
+      <p className="text-center text-purple-200 text-xs">
+        New here?{" "}
+        <span
+          className="text-white font-semibold underline cursor-pointer hover:text-purple-100 transition"
+          onClick={handleContinue}
+        >
+          Register with your number
+        </span>
+      </p>
+    </AuthLayout>
+  );
 }
 
 export default LoginPage;
