@@ -1,1 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700;900&display=swap');
 @import "tailwindcss";
+
+:root {
+  --primary: #772B88;
+  --primary-light: #9B3BAC;
+  --primary-dark: #571F66;
+  --green: #19893F;
+  --green-light: #1fa84e;
+  --text-dark: #414141;
+  --text-mid: #909090;
+  --bg-light: #F8F6FA;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  color: var(--text-dark);
+  background: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c0a0cc; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* Custom utilities */
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-primary:hover { background: var(--primary-light); }
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  padding: 9px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover { background: var(--primary); color: #fff; }
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(119,43,136,0.06);
+  border: 1px solid #f0e8f4;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tag-purple { background: #f5eefa; color: var(--primary); }
+.tag-green  { background: #e8f7ed; color: var(--green); }
+.tag-gray   { background: #f3f3f3; color: #666; }
+.tag-blue   { background: #e8f0fe; color: #1a73e8; }
+
+/* Page transition */
+.page-enter { animation: fadeUp 0.3s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
